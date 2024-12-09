@@ -115,7 +115,8 @@ trip::trip(route const* route,
            trip_direction_idx_t const headsign,
            std::string short_name,
            shape_idx_t shape_idx,
-           bool const bikes_allowed)
+           bool const bikes_allowed,
+           bool const wheelchair_accessible)
     : route_(route),
       service_(service),
       block_{blk},
@@ -123,7 +124,8 @@ trip::trip(route const* route,
       headsign_(headsign),
       short_name_(std::move(short_name)),
       shape_idx_(shape_idx),
-      bikes_allowed_{bikes_allowed} {}
+      bikes_allowed_{bikes_allowed},
+      wheelchair_accessible_{wheelchair_accessible} {}
 
 void trip::interpolate() {
   if (!requires_interpolation_) {
@@ -259,7 +261,8 @@ trip_data read_trips(
     traffic_days_t const& services,
     shape_loader_state const& shape_states,
     std::string_view file_content,
-    std::array<bool, kNumClasses> const& bikes_allowed_default) {
+    std::array<bool, kNumClasses> const& bikes_allowed_default,
+    std::array<bool, kNumClasses> const& wheelchair_accessible_default) {
   struct csv_trip {
     utl::csv_col<utl::cstr, UTL_NAME("route_id")> route_id_;
     utl::csv_col<utl::cstr, UTL_NAME("service_id")> service_id_;
@@ -269,6 +272,7 @@ trip_data read_trips(
     utl::csv_col<utl::cstr, UTL_NAME("block_id")> block_id_;
     utl::csv_col<utl::cstr, UTL_NAME("shape_id")> shape_id_;
     utl::csv_col<std::uint8_t, UTL_NAME("bikes_allowed")> bikes_allowed_;
+    utl::csv_col<std::uint8_t, UTL_NAME("wheelchair_accessible")> wheelchair_accessible_;
   };
   auto const& shapes = shape_states.id_map_;
 
@@ -305,12 +309,21 @@ trip_data read_trips(
                                      ? shape_idx_t::invalid()
                                      : shape_it->second;
 
+          // Apply per transportation class defaults
           auto bikes_allowed = bikes_allowed_default[static_cast<std::size_t>(
               route_it->second->clasz_)];
           if (t.bikes_allowed_.val() == 1) {
             bikes_allowed = true;
           } else if (t.bikes_allowed_.val() == 2) {
             bikes_allowed = false;
+          }
+
+          auto wheelchair_accessible = wheelchair_accessible_default[static_cast<std::size_t>(
+              route_it->second->clasz_)];
+          if (t.wheelchair_accessible_.val() == 1) {
+            wheelchair_accessible = true;
+          } else if (t.wheelchair_accessible_.val() == 2) {
+            wheelchair_accessible = false;
           }
 
           auto const blk = t.block_id_->trim().empty()
@@ -324,7 +337,8 @@ trip_data read_trips(
               route_it->second.get(), traffic_days_it->second.get(), blk,
               t.trip_id_->to_str(),
               ret.get_or_create_direction(tt, t.trip_headsign_->view()),
-              t.trip_short_name_->to_str(), shape_idx, bikes_allowed);
+              t.trip_short_name_->to_str(), shape_idx, bikes_allowed,
+              wheelchair_accessible);
           ret.trips_.emplace(t.trip_id_->to_str(), trp_idx);
           if (blk != nullptr) {
             blk->trips_.emplace_back(trp_idx);

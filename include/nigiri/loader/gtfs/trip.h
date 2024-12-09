@@ -25,8 +25,8 @@ using gtfs_trip_idx_t = cista::strong<std::uint32_t, struct _gtfs_trip_idx>;
 
 struct trip_data;
 
-static auto const kSingleTripBikesAllowed = bitvec{"1"};
-static auto const kSingleTripBikesNotAllowed = bitvec{"0"};
+static auto const kSingleTripTrue = bitvec{"1"};
+static auto const kSingleTripFalse = bitvec{"0"};
 
 struct block {
   std::vector<std::pair<std::basic_string<gtfs_trip_idx_t>, bitfield>>
@@ -67,7 +67,8 @@ struct trip {
        trip_direction_idx_t headsign,
        std::string short_name,
        shape_idx_t,
-       bool bikes_allowed);
+       bool bikes_allowed,
+       bool wheelchair_accessible);
 
   trip(trip&&) = default;
   trip& operator=(trip&&) = default;
@@ -105,6 +106,7 @@ struct trip {
   bool requires_interpolation_{false};
   bool requires_sorting_{false};
   bool bikes_allowed_{false};
+  bool wheelchair_accessible_{false};
   std::uint32_t from_line_{0U}, to_line_{0U};
 
   trip_idx_t trip_idx_{trip_idx_t::invalid()};
@@ -130,7 +132,8 @@ trip_data read_trips(
     traffic_days_t const&,
     shape_loader_state const&,
     std::string_view file_content,
-    std::array<bool, kNumClasses> const& bikes_allowed_default);
+    std::array<bool, kNumClasses> const& bikes_allowed_default,
+    std::array<bool, kNumClasses> const& wheelchair_accessible_default);
 
 void read_frequencies(trip_data&, std::string_view);
 

@@ -170,7 +170,8 @@ struct timetable {
   route_idx_t register_route(
       std::basic_string<stop::value_type> const& stop_seq,
       std::basic_string<clasz> const& clasz_sections,
-      bitvec const& bikes_allowed_per_section) {
+      bitvec const& bikes_allowed_per_section,
+      [[maybe_unused]] bitvec const& wheelchair_accessible_per_section) {
     assert(stop_seq.size() > 1U);
     assert(!clasz_sections.empty());
 
@@ -418,9 +419,18 @@ struct timetable {
   bitvec route_bikes_allowed_;
 
   // Route -> bikes allowed per section
-  // Only set for routes where the entry in route_bikes_allowed_bitvec_
+  // Only set for routes where the entry in route_bikes_allowed bitvec
   // is set to "bikes along parts of the route"
   vecvec<route_idx_t, bool> route_bikes_allowed_per_section_;
+
+  // Route * 2 -> the whole route is wheelchair accessible
+  // Route * 2 + 1 -> parts of the route are wheelchair accessible
+  bitvec route_wheelchair_accessible_;
+
+  // Route -> wheelchair accessible per section
+  // Only set for routes where the entry in wheelchair_accessible bitvec
+  // is set to "wheelchair accessible along parts of the route"
+  vecvec<route_idx_t, bool> route_wheelchair_accessible_per_section_;
 
   // Location -> list of routes
   vecvec<location_idx_t, route_idx_t> location_routes_;
