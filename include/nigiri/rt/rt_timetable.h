@@ -178,6 +178,13 @@ struct rt_timetable {
   // RT transport -> bikes allowed for each section
   vecvec<rt_transport_idx_t, bool> rt_bikes_allowed_per_section_;
 
+  // RT transport * 2 -> wheelchair accessible along the transport
+  // RT transport * 2 + 1 -> wheelchair accessible along parts of the transport
+  bitvec rt_transport_wheelchair_accessible_;
+
+  // RT transport -> wheelchair accessible for each section
+  vecvec<rt_transport_idx_t, bool> rt_wheelchair_accessible_per_section_;
+
   change_callback_t change_callback_;
 };
 
