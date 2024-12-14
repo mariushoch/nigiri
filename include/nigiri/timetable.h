@@ -171,7 +171,7 @@ struct timetable {
       std::basic_string<stop::value_type> const& stop_seq,
       std::basic_string<clasz> const& clasz_sections,
       bitvec const& bikes_allowed_per_section,
-      [[maybe_unused]] bitvec const& wheelchair_accessible_per_section) {
+      bitvec const& wheelchair_accessible_per_section) {
     assert(stop_seq.size() > 1U);
     assert(!clasz_sections.empty());
 
@@ -198,6 +198,23 @@ struct timetable {
       auto bucket = route_bikes_allowed_per_section_[route_idx_t{idx}];
       for (auto i = 0U; i < bikes_allowed_per_section.size(); ++i) {
         bucket.push_back(bikes_allowed_per_section[i]);
+      }
+    }
+
+    auto const sections_wheelchair_accessible = wheelchair_accessible_per_section.count();
+    auto const all_sections_wheelchair_accessible =
+        sections_wheelchair_accessible == sections && sections != 0;
+    auto const some_sections_wheelchair_accessible =
+        sections_wheelchair_accessible != 0U;
+    route_wheelchair_accessible_.resize(route_wheelchair_accessible_.size() + 2U);
+    route_wheelchair_accessible_.set(idx * 2, all_sections_wheelchair_accessible);
+    route_wheelchair_accessible_.set(idx * 2 + 1, some_sections_wheelchair_accessible);
+
+    route_wheelchair_accessible_per_section_.resize(idx + 1);
+    if (some_sections_wheelchair_accessible && !all_sections_wheelchair_accessible) {
+      auto bucket = route_wheelchair_accessible_per_section_[route_idx_t{idx}];
+      for (auto i = 0U; i < wheelchair_accessible_per_section.size(); ++i) {
+        bucket.push_back(wheelchair_accessible_per_section[i]);
       }
     }
 
