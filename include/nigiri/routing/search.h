@@ -144,7 +144,7 @@ struct search {
                 .count()},
         allowed_claszes,
         require_bikes_allowed,
-        q_.prf_idx_ == 2U,
+        //q_.prf_idx_ == 2U,
         tts};
   }
 

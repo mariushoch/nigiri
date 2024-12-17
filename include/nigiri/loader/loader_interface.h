@@ -14,11 +14,17 @@ struct timetable;
 
 namespace nigiri::loader {
 
+static std::array<bool, kNumClasses> const kAllClassesTrue = [] constexpr {
+  std::array<bool, kNumClasses> arr{};
+  arr.fill(true);
+  return arr;
+}();
+
 struct loader_config {
   unsigned link_stop_distance_{100U};
   std::string default_tz_;
   std::array<bool, kNumClasses> bikes_allowed_default_{};
-  std::array<bool, kNumClasses> wheelchair_accessible_default_{};
+  std::array<bool, kNumClasses> wheelchair_accessible_default_ = kAllClassesTrue;
 };
 
 struct loader_interface {
