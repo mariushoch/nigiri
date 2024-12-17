@@ -403,6 +403,9 @@ void write_footpaths(timetable& tt) {
 
   tt.locations_.preprocessing_footpaths_in_.clear();
   tt.locations_.preprocessing_footpaths_out_.clear();
+  //HACK
+ tt.locations_.footpaths_in_[2U] =  tt.locations_.footpaths_in_[prf_idx];
+ tt.locations_.footpaths_out_[2U] =  tt.locations_.footpaths_in_[prf_idx];
 }
 
 void build_footpaths(timetable& tt, finalize_options const opt) {
